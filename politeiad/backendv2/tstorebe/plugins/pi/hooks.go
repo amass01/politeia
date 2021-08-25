@@ -136,10 +136,8 @@ func (p *piPlugin) hookPluginPre(payload string) error {
 	return nil
 }
 
-
-// titleIsValid returns whether the provided title, which can be
-// either a proposal name or an author update title, matches the pi plugin
-// title regex.
+// titleIsValid returns whether the provided title, which can be either a
+// proposal name or an author update title, matches the pi plugin title regex.
 func (p *piPlugin) titleIsValid(title string) bool {
 	return p.titleRegexp.MatchString(title)
 }
