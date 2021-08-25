@@ -197,10 +197,10 @@ const (
 	// ErrorCodeCommentWriteNotAllowed is returned when a user attempts to submit
 	// a new comment or a comment vote, but does not have permission to. This
 	// could be because the proposal's vote status does not allow for any
-	// additional changes or because the user is trying to write to a thread
-	// that is not allowed. Example, once a proposal vote is approved the only
-	// comment writes that are allowed are replies to the author's most recent
-	// update thread and votes on comments within that thread.
+	// additional changes or because the user is trying to write to a thread that
+	// is not allowed. Example, once a proposal vote is approved the only comment
+	// writes that are allowed are replies and votes to the author's most recent
+	// update thread.
 	ErrorCodeCommentWriteNotAllowed = 17
 
 	// ErrorCodeExtraDataHintInvalid is returned when the extra data hint is
