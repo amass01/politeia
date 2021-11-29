@@ -268,6 +268,29 @@ func needsOnlyBillingStatusChanges(status pi.PropStatusT) bool {
 }
 
 // cmdSummary returns the pi summary of a proposal.
+func (p *piPlugin) _cmdSummary(token []byte) (string, error) {
+	// Get the proposal status
+	propStatus, err := p.getProposalStatus(token)
+	if err != nil {
+		return "", err
+	}
+
+	// Prepare the reply
+	sr := pi.SummaryReply{
+		Summary: pi.ProposalSummary{
+			Status: propStatus,
+		},
+	}
+
+	reply, err := json.Marshal(sr)
+	if err != nil {
+		return "", err
+	}
+
+	return string(reply), nil
+}
+
+// cmdSummary returns the pi summary of a proposal.
 func (p *piPlugin) cmdSummary(token []byte) (string, error) {
 	var (
 		r        *backend.Record
