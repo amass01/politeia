@@ -84,7 +84,7 @@ func (p *piPlugin) getProposalStatus(token []byte) (pi.PropStatusT, error) {
 	voteStatus = vs.Status
 
 	// Get the billing statuses if required
-	if requiresBillingStatuses(voteStatus) {
+	if statusRequiresBillingStatuses(voteStatus) {
 		// If the maximum allowed number of billing status changes
 		// have already been made for this proposal and those results
 		// have been cached, then we don't need to retreive anything
@@ -168,7 +168,7 @@ func statusRequiresRecord(s pi.PropStatusT) bool {
 // statusRequiresBillingStatuses returns whether the proposal requires the
 // billing status changes to be retrieved. This is necessary when the proposal
 // is in a stage where it's billing status can still change.
-func requiresBillingStatuses(vs ticketvote.VoteStatusT) bool {
+func statusRequiresBillingStatuses(vs ticketvote.VoteStatusT) bool {
 	switch vs {
 	case ticketvote.VoteStatusUnauthorized,
 		ticketvote.VoteStatusAuthorized,
