@@ -70,7 +70,6 @@ func (p *piPlugin) getProposalStatus(token []byte) (pi.PropStatusT, error) {
 		// determine the proposal status.
 		recordState = r.RecordMetadata.State
 		recordStatus = r.RecordMetadata.Status
-		voteStatus = ticketvote.VoteStatusInvalid
 
 		// Pull the vote metadata out of the record files
 		voteMetadata, err = voteMetadataDecode(r.Files)
