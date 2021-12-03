@@ -88,7 +88,7 @@ func (p *piPlugin) getProposalStatus(token []byte) (pi.PropStatusT, error) {
 		// If the maximum allowed number of billing status changes
 		// have already been made for this proposal and those results
 		// have been cached, then we don't need to retreive anything
-		// else. The proposal status cannot change any further.
+		// else. The proposal status cannot be changed any further.
 		if uint32(billingStatusesCount) >= p.billingStatusChangesMax {
 			return propStatus, nil
 		}
