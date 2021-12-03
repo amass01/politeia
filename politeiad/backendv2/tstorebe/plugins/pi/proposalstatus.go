@@ -33,6 +33,9 @@ func (p *piPlugin) getProposalStatus(token []byte) (pi.PropStatusT, error) {
 		voteMetadata         *ticketvote.VoteMetadata
 		billingStatuses      []pi.BillingStatusChange
 		billingStatusesCount int
+
+		// Declarations to prevent goto errors
+		voteSummary *ticketvote.SummaryReply
 	)
 
 	// Check if the proposal status has been cached
@@ -74,14 +77,20 @@ func (p *piPlugin) getProposalStatus(token []byte) (pi.PropStatusT, error) {
 		if err != nil {
 			return "", err
 		}
+
+		// If the proposal is unvetted, no other data is
+		// required in order to determine the status.
+		if recordState == backend.StateUnvetted {
+			goto determineStatus
+		}
 	}
 
 	// Get the vote summary
-	vs, err := p.voteSummary(token)
+	voteSummary, err = p.voteSummary(token)
 	if err != nil {
 		return "", err
 	}
-	voteStatus = vs.Status
+	voteStatus = voteSummary.Status
 
 	// Get the billing statuses if required
 	if statusRequiresBillingStatuses(voteStatus) {
@@ -98,6 +107,7 @@ func (p *piPlugin) getProposalStatus(token []byte) (pi.PropStatusT, error) {
 		}
 	}
 
+determineStatus:
 	// Determine the proposal status
 	propStatus, err = proposalStatus(recordState, recordStatus, voteStatus,
 		voteMetadata, billingStatuses)
