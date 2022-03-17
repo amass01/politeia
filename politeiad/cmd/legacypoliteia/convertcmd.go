@@ -21,7 +21,6 @@ import (
 	"github.com/decred/politeia/politeiad/plugins/ticketvote"
 	"github.com/decred/politeia/politeiawww/client"
 	"github.com/decred/politeia/util"
-	"github.com/google/uuid"
 )
 
 const (
@@ -41,7 +40,6 @@ var (
 	skipComments = convertFlags.Bool("skipcomments", false, "skip comments")
 	skipBallots  = convertFlags.Bool("skipballots", false, "skip ballots")
 	ballotLimit  = convertFlags.Int("ballotlimit", 0, "limit parsed votes")
-	userID       = convertFlags.String("userid", "", "replace user IDs")
 	token        = convertFlags.String("token", "", "test one proposal at a time")
 )
 
@@ -52,7 +50,6 @@ type convertCmd struct {
 	skipComments bool
 	skipBallots  bool
 	ballotLimit  int
-	userID       string
 	token        string
 }
 
@@ -80,14 +77,6 @@ func execConvertCmd(args []string) error {
 	// Clean the legacy directory path
 	*legacyDir = util.CleanAndExpandPath(*legacyDir)
 
-	// Verify the user ID
-	if *userID != "" {
-		_, err = uuid.Parse(*userID)
-		if err != nil {
-			return fmt.Errorf("invalid user id '%v': %v", *userID, err)
-		}
-	}
-
 	// Setup the legacy directory
 	err = os.MkdirAll(*legacyDir, filePermissions)
 	if err != nil {
@@ -107,7 +96,6 @@ func execConvertCmd(args []string) error {
 		skipComments: *skipComments,
 		skipBallots:  *skipBallots,
 		ballotLimit:  *ballotLimit,
-		userID:       *userID,
 		token:        *token,
 	}
 

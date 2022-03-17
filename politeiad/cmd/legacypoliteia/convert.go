@@ -210,22 +210,11 @@ func (c *convertCmd) populateUserID(userMD *usermd.UserMetadata) error {
 }
 
 func (c *convertCmd) getUserID(userPubKey string) (string, error) {
-	switch {
-	case c.userID != "":
-		// Replacement user ID is not empty, use it
-		return c.userID, nil
-
-	case c.userID == "":
-		// No replacement user ID is given, pull user ID using the
-		// present public key.
-		u, err := c.fetchUserByPubKey(userPubKey)
-		if err != nil {
-			return "", err
-		}
-		return u.ID, nil
+	u, err := c.fetchUserByPubKey(userPubKey)
+	if err != nil {
+		return "", err
 	}
-
-	return "", nil
+	return u.ID, nil
 }
 
 // convertUserMetadata reads the git backend data from disk that is
