@@ -229,7 +229,7 @@ func (c *convertCmd) convertUserMetadata(proposalDir string) (*usermd.UserMetada
 	}
 
 	// Populate the user ID. The user ID was not saved
-	// to disk in the git backend, so we must retreive
+	// to disk in the git backend, so we must retrieve
 	// it from the politeia API using the public key.
 	userID, err := c.getUserIDByPubKey(p.PublicKey)
 	if err != nil {
