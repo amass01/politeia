@@ -250,6 +250,8 @@ func (c *convertCmd) convertUserMetadata(proposalDir string) (*usermd.UserMetada
 // convertStatusChange reads the git backend data from disk that is
 // required to build the usermd plugin StatusChangeMetadata structures,
 // then returns the latest StateChangeMetadata.
+//
+// Only the most recent status change is returned.
 func convertStatusChange(proposalDir string) (*usermd.StatusChangeMetadata, error) {
 	fmt.Printf("  Status changes\n")
 
@@ -297,9 +299,6 @@ func convertStatusChange(proposalDir string) (*usermd.StatusChangeMetadata, erro
 			Timestamp: sc.Timestamp,
 		}
 
-		fmt.Printf("    Status: %v\n", backend.Statuses[status])
-		fmt.Printf("    Reason: %v\n", scm.Reason)
-
 		statuses = append(statuses, scm)
 	}
 
@@ -308,8 +307,19 @@ func convertStatusChange(proposalDir string) (*usermd.StatusChangeMetadata, erro
 		return statuses[i].Timestamp < statuses[j].Timestamp
 	})
 
-	latestStatusChange := statuses[len(statuses)-1]
-	return &latestStatusChange, nil
+	// Only the most recent status change is returned
+	latest := statuses[len(statuses)-1]
+
+	status := backend.StatusT(latest.Status)
+	fmt.Printf("    Token    : %v\n", latest.Token)
+	fmt.Printf("    Version  : %v\n", latest.Version)
+	fmt.Printf("    Status   : %v\n", backend.Statuses[status])
+	fmt.Printf("    PublicKey: %v\n", latest.PublicKey)
+	fmt.Printf("    Signature: %v\n", latest.Signature)
+	fmt.Printf("    Reason   : %v\n", latest.Reason)
+	fmt.Printf("    Timestamp: %v\n", latest.Timestamp)
+
+	return &latest, nil
 }
 
 // convertAuthDetails reads the git backend data from disk that is
