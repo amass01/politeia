@@ -137,14 +137,15 @@ func convertProposalMetadata(proposalDir string) (*pi.ProposalMetadata, error) {
 		return nil, err
 	}
 
-	fmt.Printf("    Name: %v\n", name)
-
 	// Get the legacy token from the proposal
 	// directory path.
 	token, ok := gitProposalToken(proposalDir)
 	if !ok {
 		return nil, fmt.Errorf("token not found in path '%v'", proposalDir)
 	}
+
+	fmt.Printf("    Name       : %v\n", name)
+	fmt.Printf("    LegacyToken: %v\n", token)
 
 	return &pi.ProposalMetadata{
 		Name:        name,
