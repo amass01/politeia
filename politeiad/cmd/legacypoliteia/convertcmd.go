@@ -122,14 +122,20 @@ func (c *convertCmd) convertGitProposals() error {
 	count := 1
 	for token := range tokens {
 		switch {
-		case c.token != "":
-			if c.token != token {
-				// Single token mode, skip irrelevant token
-				continue
-			}
+		case c.token != "" && c.token != token:
+			// The caller only wants to convert a single
+			// proposal and this is not it. Skip it.
+			continue
 
-		case c.token == "":
-			fmt.Printf("Converting proposal (%v/%v)\n", count, len(tokens))
+		case c.token != "" && c.token == token:
+			// The caller only wants to convert a single
+			// proposal and this is it. Convert it.
+			fmt.Printf("Converting proposal %v\n", token)
+
+		default:
+			// All proposals are being converted
+			fmt.Printf("Converting proposal %v (%v/%v)\n",
+				token, count, len(tokens))
 		}
 
 		// Get the path to the most recent version of the proposal.
@@ -162,12 +168,7 @@ func (c *convertCmd) convertGitProposals() error {
 		if err != nil {
 			return err
 		}
-		userMD, err := convertUserMetadata(proposalDir)
-		if err != nil {
-			return err
-		}
-		// Populate user ID
-		err = c.populateUserID(userMD)
+		userMD, err := c.convertUserMetadata(proposalDir)
 		if err != nil {
 			return err
 		}
@@ -391,48 +392,6 @@ func (c *convertCmd) largestCommitmentAddrs(hashes []string) (map[string]string,
 	}
 
 	return addrs, nil
-}
-
-// userReply is politeiawww's reply to the users request.
-type usersReply struct {
-	TotalUsers   uint64 `json:"totalusers,omitempty"`
-	TotalMatches uint64 `json:"totalmatches"`
-	Users        []user `json:"users"`
-}
-
-// user is returned from the politeiawww API.
-type user struct {
-	ID       string `json:"id"`
-	Email    string `json:"email,omitempty"`
-	Username string `json:"username"`
-}
-
-// fetchUserByPubKey makes a call to the politeia API requesting the user
-// with the provided public key.
-func (c *convertCmd) fetchUserByPubKey(pubkey string) (*user, error) {
-	url := "https://proposals.decred.org/api/v1/users?publickey=" + pubkey
-	r, err := c.client.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Body.Close()
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var ur usersReply
-	err = json.Unmarshal(body, &ur)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(ur.Users) == 0 {
-		return nil, fmt.Errorf("no user found for pubkey %v", pubkey)
-	}
-
-	return &ur.Users[0], nil
 }
 
 // sanityChecks performs some basic sanity checks on the proposal data.

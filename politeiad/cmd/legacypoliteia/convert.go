@@ -194,33 +194,12 @@ func convertVoteMetadata(proposalDir string) (*ticketvote.VoteMetadata, error) {
 	return &vm, nil
 }
 
-// populateUserID populates the user ID of the given user metadata by fetching
-// it from production using the public key. If test user ID is not empty, it
-// hardcodes it instead of fetching.
-func (c *convertCmd) populateUserID(userMD *usermd.UserMetadata) error {
-	userID, err := c.getUserID(userMD.PublicKey)
-	if err != nil {
-		return err
-	}
-
-	// Populate user metadata user ID
-	userMD.UserID = userID
-
-	return nil
-}
-
-func (c *convertCmd) getUserID(userPubKey string) (string, error) {
-	u, err := c.fetchUserByPubKey(userPubKey)
-	if err != nil {
-		return "", err
-	}
-	return u.ID, nil
-}
-
-// convertUserMetadata reads the git backend data from disk that is
-// required to build a usermd plugin UserMetadata structure, then
-// returns the UserMetadata.
-func convertUserMetadata(proposalDir string) (*usermd.UserMetadata, error) {
+// convertUserMetadata reads the git backend data from disk that is required to
+// build a usermd plugin UserMetadata structure, then returns the UserMetadata.
+//
+// This function makes an external API call to the politeia API to retrieve the
+// user ID.
+func (c *convertCmd) convertUserMetadata(proposalDir string) (*usermd.UserMetadata, error) {
 	fmt.Printf("  User metadata\n")
 
 	// Read the proposal general mdstream from disk
@@ -240,11 +219,20 @@ func convertUserMetadata(proposalDir string) (*usermd.UserMetadata, error) {
 		return nil, err
 	}
 
+	// Populate the user ID. The user ID was not saved
+	// to disk in the git backend, so we must retreive
+	// it from the politeia API using the public key.
+	userID, err := c.getUserIDByPubKey(p.PublicKey)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("    User ID  : %v\n", userID)
 	fmt.Printf("    PublicKey: %v\n", p.PublicKey)
 	fmt.Printf("    Signature: %v\n", p.Signature)
 
 	return &usermd.UserMetadata{
-		UserID:    "", // Intentionally omitted
+		UserID:    userID,
 		PublicKey: p.PublicKey,
 		Signature: p.Signature,
 	}, nil
@@ -826,7 +814,7 @@ func (c *convertCmd) convertCommentAdd(d *json.Decoder) (*comments.CommentAdd, e
 	}
 
 	// Get user ID
-	userID, err := c.getUserID(cm.PublicKey)
+	userID, err := c.getUserIDByPubKey(cm.PublicKey)
 	if err != nil {
 		return nil, err
 	}
@@ -867,7 +855,7 @@ func (c *convertCmd) convertCommentDel(d *json.Decoder, parentIDs map[uint32]uin
 	}
 
 	// Get user ID
-	userID, err := c.getUserID(cc.PublicKey)
+	userID, err := c.getUserIDByPubKey(cc.PublicKey)
 	if err != nil {
 		return nil, err
 	}
@@ -904,7 +892,7 @@ func (c *convertCmd) convertCommentAddLike(d *json.Decoder) (*comments.CommentVo
 	}
 
 	// Get user ID
-	userID, err := c.getUserID(lc.PublicKey)
+	userID, err := c.getUserIDByPubKey(lc.PublicKey)
 	if err != nil {
 		return nil, err
 	}
