@@ -60,6 +60,10 @@ func convertRecordMetadata(proposalDir string) (*backend.RecordMetadata, error) 
 
 	// Build record metadata
 	rm := backend.RecordMetadata{
+		// We are using the legacy git token as the record
+		// metadata token for the sake of keeping certain
+		// signatures coherent (I think...). This needs to
+		// be verified.
 		Token:     r.Token,
 		Version:   uint32(version),
 		Iteration: uint32(r.Iteration),
@@ -69,9 +73,13 @@ func convertRecordMetadata(proposalDir string) (*backend.RecordMetadata, error) 
 		Merkle:    r.Merkle,
 	}
 
-	fmt.Printf("    Token  : %v\n", rm.Token)
-	fmt.Printf("    Version: %v\n", rm.Version)
-	fmt.Printf("    Status : %v\n", backend.Statuses[rm.Status])
+	fmt.Printf("    Token    : %v\n", rm.Token)
+	fmt.Printf("    Version  : %v\n", rm.Version)
+	fmt.Printf("    Iteration: %v\n", rm.Iteration)
+	fmt.Printf("    State    : %v\n", backend.States[rm.State])
+	fmt.Printf("    Status   : %v\n", backend.Statuses[rm.Status])
+	fmt.Printf("    Timestamp: %v\n", rm.Timestamp)
+	fmt.Printf("    Merkle   : %v\n", rm.Merkle)
 
 	return &rm, nil
 }
